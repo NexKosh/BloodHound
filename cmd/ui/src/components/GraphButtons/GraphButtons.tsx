@@ -25,6 +25,7 @@ interface GraphButtonsProps {
     onRunStandardLayout: () => void;
     onRunSequentialLayout: () => void;
     onExportJson: () => void;
+    onImportJson: () => void;
     onSearchCurrentResults: () => void;
     onToggleAllLabels: () => void;
     onToggleNodeLabels: () => void;
@@ -40,6 +41,7 @@ const GraphButtons: FC<GraphButtonsProps> = ({
     onRunStandardLayout,
     onRunSequentialLayout,
     onExportJson,
+    onImportJson,
     onSearchCurrentResults,
     onToggleAllLabels,
     onToggleNodeLabels,
@@ -69,6 +71,9 @@ const GraphButtons: FC<GraphButtonsProps> = ({
             <GraphMenu label='Export'>
                 <MenuItem onClick={onExportJson} disabled={isJsonExportDisabled}>
                     JSON
+                </MenuItem>
+                <MenuItem onClick={onImportJson}>
+                    Import JSON
                 </MenuItem>
             </GraphMenu>
 

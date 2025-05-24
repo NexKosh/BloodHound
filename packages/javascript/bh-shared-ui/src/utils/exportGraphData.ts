@@ -36,3 +36,48 @@ export const exportToJson = (data: any) => {
         fileType: 'text/json',
     });
 };
+
+export const importToJson = (callback: (data: any) => void): void => {
+    // 1. Create a file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json'; // Accept .json files and standard JSON MIME type
+
+    // 2. Handle file selection
+    input.onchange = (event) => {
+        const file = (event.target as HTMLInputElement)?.files?.[0];
+        if (!file) {
+            console.error('No file selected.');
+            // Optionally, provide user feedback
+            return;
+        }
+
+        // 3. Read the file content
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const fileContent = e.target?.result;
+                if (typeof fileContent === 'string') {
+                    // 4. Parse the JSON string
+                    const jsonData = JSON.parse(fileContent);
+                    // 5. Process the imported data (via callback)
+                    callback(jsonData);
+                } else {
+                    console.error('File content is not a string.');
+                    // Optionally, provide user feedback
+                }
+            } catch (error) {
+                console.error('Error parsing JSON file:', error);
+                // Optionally, provide user feedback about the error (e.g., alert('Invalid JSON file.'))
+            }
+        };
+        reader.onerror = (error) => {
+            console.error('Error reading file:', error);
+            // Optionally, provide user feedback
+        };
+        reader.readAsText(file); // Read as text
+    };
+
+    // Trigger the file selection dialog
+    input.click();
+};

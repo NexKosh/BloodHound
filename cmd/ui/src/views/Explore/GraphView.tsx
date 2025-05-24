@@ -20,6 +20,7 @@ import {
     SearchCurrentNodes,
     WebGLDisabledAlert,
     exportToJson,
+    importToJson,
     isWebGLEnabled,
     transformFlatGraphResponse,
     useAvailableEnvironments,
@@ -60,7 +61,7 @@ const GraphView: FC = () => {
     const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number } | null>(null);
     const [showNodeLabels, setShowNodeLabels] = useState(true);
     const [showEdgeLabels, setShowEdgeLabels] = useState(true);
-    const [exportJsonData, setExportJsonData] = useState();
+    const [exportJsonData, setExportJsonData] = useState<any>();
 
     const sigmaChartRef = useRef<any>(null);
     const currentSearchAnchorElement = useRef(null);
@@ -85,6 +86,30 @@ const GraphView: FC = () => {
 
         setGraphologyGraph(graph);
     }, [graphQuery.data, theme, darkMode, graphQuery.isError, customIcons.data]);
+
+    const handleImportJson = () => {
+        importToJson((importedData) => {
+            console.log('Imported graph data:', importedData);
+            // Similar to how data is processed from graphQuery.data
+            // You might want to add more validation or transformation here
+            if (isEmpty(importedData) || isEmpty(importedData.nodes)) {
+                alert('Imported JSON is empty or has no nodes.');
+                return;
+            }
+
+            const graph = new MultiDirectedGraph();
+            // Assuming importedData is in the same format as items from graphQuery
+            // You may need to transform importedData if its structure is different
+            initGraph(graph, importedData, theme, darkMode, customIcons.data ?? {});
+            setExportJsonData(importedData);
+            setCurrentNodes(importedData.nodes);
+            setGraphologyGraph(graph);
+
+            // Optionally, reset camera or fit view to new graph
+            sigmaChartRef.current?.resetCamera(); 
+            alert('Graph data imported successfully!');
+        });
+    };
 
     if (isLoading) {
         return (
@@ -133,8 +158,13 @@ const GraphView: FC = () => {
                 <div className='flex gap-1 pointer-events-auto' ref={currentSearchAnchorElement}>
                     <GraphButtons
                         onExportJson={() => {
-                            exportToJson(exportJsonData);
+                            if (!isEmpty(exportJsonData)) {
+                                exportToJson(exportJsonData);
+                            } else {
+                                alert('No graph data to export.');
+                            }
                         }}
+                        onImportJson={handleImportJson}
                         onReset={() => {
                             sigmaChartRef.current?.resetCamera();
                         }}
